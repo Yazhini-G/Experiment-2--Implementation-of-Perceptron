@@ -1,9 +1,9 @@
 # Experiment-2--Implementation-of-Perceptron
-##AIM:
+## AIM:
 
 To implement a perceptron for classification using Python
 
-EQUIPMENTS REQUIRED:
+## EQUIPMENTS REQUIRED:
 Hardware – PCs
 Anaconda – Python 3.7 Installation / Google Colab /Jupiter Notebook
 
@@ -23,7 +23,7 @@ A threshold function, usually Heaviside or sign functions, maps the scalar value
 Indeed if the neuron output is exactly zero it cannot be assumed that the sample belongs to the first sample since it lies on the boundary between the two classes. Nonetheless for the sake of simplicity,ignore this situation.
 
 
-ALGORITHM:
+## ALGORITHM:
 Importing the libraries
 Importing the dataset
 Plot the data to verify the linear separable dataset and consider only two classes
@@ -42,4 +42,89 @@ Plot the error for each iteration
 Print the accuracy
 
 
- PROGRAM:
+## PROGRAM:
+ ```
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+class Perceptron:
+    def __init__(self,learning_rate=0.1):
+        self.learning_rate = learning_rate
+        self._b = 0.0  #y-intercept
+        self._w = None # weights assigned to input features
+        self.misclassified_samples = []
+    def fit(self, x: np.array, y: np.array, n_iter=10):
+        self._b = 0.0
+        self._w = np.zeros(x.shape[1])
+        self.misclassified_samples = []
+        for _ in range(n_iter):
+            # counter of the errors during this training interaction
+            errors = 0
+            for xi, yi in zip(x,y):
+                update = self.learning_rate * (yi - self.predict(xi))
+                self._b += update
+                self._w += update * xi
+                errors += int(update != 0.0)
+            self.misclassified_samples.append(errors)
+    def f(self, x: np.array) -> float:
+        return np.dot(x, self._w) + self._b
+    def predict(self, x: np.array):
+        return np.where(self.f(x) >= 0,1,-1)
+
+df = pd.read_csv('IRIS.csv')
+print(df.head())
+# extract the label column
+y = df.iloc[:,4].values
+# extract features
+x = df.iloc[:,0:3].values
+#reduce dimensionality of the data
+x = x[0:100, 0:2]
+y = y[0:100]
+#plot Iris Setosa samples
+plt.scatter(x[:50,0], x[:50,1], color='orange', marker='o', label='Setosa')
+#plot Iris Versicolour samples
+plt.scatter(x[50:100,0], x[50:100,1], color='blue', marker='x', label='Versicolour')
+#show the legend
+plt.xlabel("Sepal length")
+plt.ylabel("Petal length")
+plt.legend(loc='upper left')
+#show the plot
+plt.show()
+#map the labels to a binary integer value
+y = np.where(y == 'Iris-Setosa',1,-1)
+x[:,0] = (x[:,0] - x[:,0].mean()) / x[:,0].std()
+x[:,1] = (x[:,1] - x[:,1].mean()) / x[:,1].std()
+# split the data
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25,random_state=0)
+# train the model
+classifier = Perceptron(learning_rate=0.01)
+classifier.fit(x_train, y_train)
+print("accuracy",accuracy_score(classifier.predict(x_test),y_test)*100)
+# plot the number of errors during each iteration
+plt.plot(range(1,len(classifier.misclassified_samples)+1),classifier.misclassified_samples, marker='o')
+plt.xlabel('Epoch')
+plt.ylabel('Errors')
+plt.show()
+
+```
+## Output
+
+## Dataset
+![270094765-773885bc-793f-435e-b6d8-74067315c4b9](https://github.com/Yazhini-G/Experiment-2--Implementation-of-Perceptron/assets/120244201/efe61278-d5bd-4b79-9733-fa9de5f99e6e)
+
+## SCATTER PLOT:
+![270094789-9cae0d8c-af35-4d66-b31c-341dcb786393](https://github.com/Yazhini-G/Experiment-2--Implementation-of-Perceptron/assets/120244201/b4d6dfe8-c4f0-42ce-8a89-f2fe09097e16)
+
+## ERROR PLOT:
+![270094802-230149b1-1145-4ff5-aa5e-ab67258a6051](https://github.com/Yazhini-G/Experiment-2--Implementation-of-Perceptron/assets/120244201/87b4e72c-57fa-4598-a5d7-d78fd121c75f)
+
+## ACCURACY:
+![image](https://github.com/Yazhini-G/Experiment-2--Implementation-of-Perceptron/assets/120244201/83f530e7-8445-43b4-8d09-ebbd7f476598)
+
+## RESULT:
+Thus a perceptron for classification is implemented using python.
+
